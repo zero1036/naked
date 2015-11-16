@@ -4,15 +4,15 @@ var uglify = require('gulp-uglify');
 var minifyCss = require('gulp-minify-css');
 
 gulp.task('mjs', function() {
-    return gulp.src(['src/*.js', 'src/*/*.js'])
-        .pipe(concat('naded.min.js'))
+    return gulp.src(['src/module/*.js', 'src/module/*/*.js'])
+        .pipe(concat('naked.min.js'))
         .pipe(uglify())
         .pipe(gulp.dest('asset'));
 });
 
 gulp.task('mcss', function() {
     return gulp.src(['src/css/*.css'])
-        .pipe(concat('naded.min.css'))
+        .pipe(concat('naked.min.css'))
         .pipe(minifyCss())
         .pipe(gulp.dest('asset'));
 });
