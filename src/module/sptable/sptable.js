@@ -86,12 +86,12 @@ angular.module('nd.sptable', ['ngAnimate'])
                 $element[0].style.width = wid;
             });
 
-            // //监听item的比例变化，并通知父指令全局刷新所有item
-            // $scope.$watch(function(scope) {
-            //     return scope.spItem[$attrs.scaleField];
-            // }, function(scale) {
-            //     self.refreshParentArr();
-            // });
+            //监听item的比例变化，并通知父指令全局刷新所有item
+            $scope.$watch(function(scope) {
+                return scope.spItem[$attrs.scaleField];
+            }, function(scale) {
+                self.refreshParentArr();
+            });
 
             //监听item的比例变化，并通知父指令全局刷新所有item
             $scope.$watch(function(scope) {
