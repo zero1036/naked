@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+    <title>sptable</title>
+    <link href="../../src/css/animations.css" rel="stylesheet">
+    <!-- <link href="../../src/css/wall.css" rel="stylesheet"> -->
+    <script src="../../src/lib/angular.js"></script>
+    <script src="../../src/lib/angular-animate.js"></script>
+    <script src="../../src/module/util/Array.js"></script>
+    <script src="../../src/module/sptable/sptable.js"></script>
+    <style>
+    .container {
+        /*width: 500px;*/
+    }
+    
+    .item {
+        width: 200px;
+        height: 130px;
+        display: inline-block;
+        /*margin: 2px;*/
+        /*border: 1px solid #d2d2d2;*/
+        overflow: auto;
+    }
+    
+    .item > div {
+        margin: 2px;
+        padding: 4px;
+        height: auto;
+        background-color: rgb(237, 240, 231);
+        border: 1px solid #d2d2d2;
+        height: 80%;
+    }
+    
+    .item input {
+        width: 60%;
+    }
+    </style>
+</head>
+
+<body ng-controller="demoCtrl">
+    <div class="container" nd-sptable sp-arr="data" row-field="row" scale-field="scale" width-unit="sc" width-px="500">
+        <div class="item" nd-spitem ng-repeat="d in data" sp-item="d">
+            <div>
+                <input type="number" ng-model="d.scale" /> {{d.id}}
+            </div>
+        </div>
+    </div>
+    <button type="button" ng-click="insert()">insert</button>
+    <script>
+    var app = angular.module('myApp', ['nd.sptable']);
+
+    app.controller('demoCtrl', function($scope) {
+        $scope.data = [{
+            id: 1,
+            row: 1,
+            scale: 10
+        }, {
+            id: 2,
+            row: 1,
+            scale: 50
+        }, {
+            id: 3,
+            row: 1,
+            scale: 40
+        }, {
+            id: 4,
+            row: 1,
+            scale: 40
+        }, {
+            id: 5,
+            row: 2,
+            scale: 40
+        }];
+
+        //
+        $scope.insert = function() {
+            $scope.data.splice(4, 0, {
+                id: 6,
+                row: 1,
+                scale: 20
+            });
+
+            // $scope.data[0].scale = 50;
+
+            // $scope.data[0].scale = 50;
+            // $scope.$digest();
+        };
+    });
+
+    app.directive('ndSptable', function() {
+        return {
+            scope: {
+                spArr: '='
+            },
+            controller: function($scope, $element, $attrs, $transclude) {
+
+                if (!angular.isDefined($attrs.rowField) || !angular.isDefined($attrs.scaleField)) {
+                    return;
+                }
+
+                //刷新集合
+                this.refreshArr = function(arr, oldArr) {
+                    if (arr === undefined) {
+                        arr = $scope.spArr;
+                    }
+
+                    //目前最多支持10行
+                    for (var irow = 0; irow <= 10; irow++) {
+                        //获取当前行所有item集合
+                        var arrInRow = arr.filter($attrs.rowField, irow + 1);
+
+                        if (arrInRow.length === 0) {
+                            return;
+                        }
+
+                        //获取所有item所占scale总和
+                        var totalScale = getTotalScale(arrInRow);
+
+                        for (var i = 0, en; en = arrInRow[i++];) {
+                            calculateWidth(en, totalScale);
+                        }
+                    }
+                };
+
+                //监听item集合变化
+                $scope.$watchCollection('spArr', this.refreshArr);
+
+                //获取最大比例
+                function getTotalScale(arrInRow) {
+                    var totalScale = 0;
+                    for (var i = 0, en; en = arrInRow[i++];) {
+                        var curScale = en[$attrs.scaleField];
+
+                        totalScale += curScale;
+                    }
+                    return totalScale;
+                }
+
+                //计算item项实际宽度
+                function calculateWidth(item, totalScale) {
+                    var itemScale = item[$attrs.scaleField];
+
+                    if (angular.isDefined($attrs.widthUnit) && angular.isDefined($attrs.widthPx) && $attrs.widthUnit === "px") {
+                        item.width = ((parseInt($attrs.widthPx) * itemScale) / totalScale);
+                        item.width = item.width + "px";
+                    } else {
+                        item.width = (itemScale / totalScale) * 100;
+                        item.width = item.width + "%";
+                    }
+
+                }
+            }
+        }
+    });
+
+    app.directive('ndSpitem', function() {
+        return {
+            require: ['?^ndSptable', '?^ndSpitem'],
+            scope: {
+                spItem: '='
+            },
+            controller: function($scope, $element, $attrs, $transclude) {
+
+                this.refreshParentArr = angular.loop;
+                var self = this;
+                //监听item的宽度变化，并改变DOM样式
+                $scope.$watch(function(scope) {
+                    return scope.spItem.width;
+                }, function(wid) {
+                    //获取元素
+                    $element[0].style.width = wid;
+                });
+
+                //监听item的比例变化，并通知父指令全局刷新所有item
+                $scope.$watch(function(scope) {
+                    return scope.spItem.scale;
+                }, function(scale) {
+                    self.refreshParentArr();
+                });
+
+            },
+            link: function(scope, el, attr, ctrls) {
+                ctrls[1].refreshParentArr = ctrls[0].refreshArr;
+            }
+        };
+    })
+    </script>
+</body>
+
+</html>
