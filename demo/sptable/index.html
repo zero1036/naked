@@ -50,7 +50,7 @@
 
 <body ng-controller="demoCtrl">
     <div class="container" nd-sptable sp-arr="data" row-field="row" scale-field="scale" isdel-field="isDel" width-unit="sc" width-px="500">
-        <div class="item" nd-spitem ng-repeat="d in data | fltdel" sp-item="d">
+        <div class="item" nd-spitem ng-repeat="d in data | filter:func" sp-item="d" scale-field="scale" isdel-field="isDel">
             <div>
                 <div>id:{{d.id}}</div>
                 <div>row:{{d.row}}</div>
@@ -126,9 +126,28 @@
         };
 
         $scope.del = function() {
-            $scope.data[3].isDel = true;
+            $scope.data[0].isDel = true;
         };
+
+        $scope.func = function(e) {
+            return e.isDel > false;
+        }
+
+
     }]);
+
+    app.filter('fltdel', function() {
+        return function(items) {
+            var newItems = new Array();
+
+            angular.forEach(items, function(item) {
+                if (item.isDel === false) {
+                    newItems.push(item);
+                }
+            });
+            return newItems;
+        }
+    });
     </script>
 </body>
 

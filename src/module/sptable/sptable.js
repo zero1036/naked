@@ -86,11 +86,20 @@ angular.module('nd.sptable', ['ngAnimate'])
                 $element[0].style.width = wid;
             });
 
+            // //监听item的比例变化，并通知父指令全局刷新所有item
+            // $scope.$watch(function(scope) {
+            //     return scope.spItem[$attrs.scaleField];
+            // }, function(scale) {
+            //     self.refreshParentArr();
+            // });
+
             //监听item的比例变化，并通知父指令全局刷新所有item
             $scope.$watch(function(scope) {
-                return scope.spItem.scale;
-            }, function(scale) {
-                self.refreshParentArr();
+                return scope.spItem.isDel;
+            }, function(isDel) {
+                if (isDel) {
+                    self.refreshParentArr();
+                }
             });
 
         },
@@ -100,18 +109,7 @@ angular.module('nd.sptable', ['ngAnimate'])
     };
 })
 
-.filter('fltdel', function() {
-    return function(items) {
-        var newItems = new Array();
 
-        angular.forEach(items, function(item) {
-            if (item.isDel === false) {
-                newItems.push(item);
-            }
-        });
-        return newItems;
-    }
-});
 
 // .directive('ndSpadd', function() {
 //     return {
