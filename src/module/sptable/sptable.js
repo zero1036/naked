@@ -17,22 +17,33 @@ angular.module('nd.sptable', ['ngAnimate'])
                     arr = $scope.spArr;
                 }
 
+                var curCount = 0;
                 //目前最多支持10行
                 for (var irow = 1; irow <= 10; irow++) {
                     //获取当前行所有item集合
-                    var arrInRow = arr.filter($attrs.rowField, irow);
-                    //过滤不是删除的记录
-                    arrInRow = arrInRow.filter($attrs.isdelField, false);
+                    var itemsInRowAll = arr.filter($attrs.rowField, irow);
+                    //过滤非删除的记录
+                    var itemsInRowNotDel = itemsInRowAll.filter($attrs.isdelField, false);
 
-                    if (arrInRow.length === 0) {
+                    if (itemsInRowAll.length === 0) {
                         return;
                     }
 
-                    //获取所有item所占scale总和
-                    var totalScale = getTotalScale(arrInRow);
+                    //计算每行items总量
+                    curCount += itemsInRowAll.length;
 
-                    for (var i = 0, en; en = arrInRow[i++];) {
-                        calculateWidth(en, totalScale);
+                    //获取所有非删除items所占scale总和
+                    var totalScale = getTotalScale(itemsInRowNotDel);
+
+                    for (var i = 0, en; en = itemsInRowAll[i++];) {
+
+                        //计算每个非删除item项实际宽度
+                        if (en[$attrs.isdelField] === false) {
+                            calculateWidth(en, totalScale);
+                        }
+
+                        //为每个item设置所在行的下一项索引
+                        en.nextIndex = curCount;
                     }
                 }
             };
@@ -62,7 +73,6 @@ angular.module('nd.sptable', ['ngAnimate'])
                     item.width = (itemScale / totalScale) * 100;
                     item.width = item.width + "%";
                 }
-
             }
         }
     }
@@ -89,15 +99,17 @@ angular.module('nd.sptable', ['ngAnimate'])
             //监听item的比例变化，并通知父指令全局刷新所有item
             $scope.$watch(function(scope) {
                 return scope.spItem[$attrs.scaleField];
-            }, function(scale) {
-                self.refreshParentArr();
+            }, function(scale, oscale) {
+                if (scale !== oscale) {
+                    self.refreshParentArr();
+                }
             });
 
-            //监听item的比例变化，并通知父指令全局刷新所有item
+            //监听item的删除键变化，并通知父指令全局刷新所有item
             $scope.$watch(function(scope) {
-                return scope.spItem.isDel;
-            }, function(isDel) {
-                if (isDel) {
+                return scope.spItem[$attrs.isdelField];
+            }, function(isDel, oisDel) {
+                if (isDel !== oisDel && isDel) {
                     self.refreshParentArr();
                 }
             });
@@ -108,37 +120,3 @@ angular.module('nd.sptable', ['ngAnimate'])
         }
     };
 })
-
-
-
-// .directive('ndSpadd', function() {
-//     return {
-//         require: ['?^ndSptable', '?^ndSpitem'],
-//         scope: {
-//             spItem: '='
-//         },
-//         controller: function($scope, $element, $attrs, $transclude) {
-
-//             this.refreshParentArr = angular.loop;
-//             var self = this;
-//             //监听item的宽度变化，并改变DOM样式
-//             $scope.$watch(function(scope) {
-//                 return scope.spItem.width;
-//             }, function(wid) {
-//                 //获取元素
-//                 $element[0].style.width = wid;
-//             });
-
-//             //监听item的比例变化，并通知父指令全局刷新所有item
-//             $scope.$watch(function(scope) {
-//                 return scope.spItem.scale;
-//             }, function(scale) {
-//                 self.refreshParentArr();
-//             });
-
-//         },
-//         link: function(scope, el, attr, ctrls) {
-//             ctrls[1].refreshParentArr = ctrls[0].refreshArr;
-//         }
-//     };
-// })
