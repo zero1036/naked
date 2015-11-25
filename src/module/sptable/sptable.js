@@ -3,7 +3,8 @@ angular.module('nd.sptable', ['ngAnimate'])
 .directive('ndSptable', function() {
     return {
         scope: {
-            spArr: '='
+            spArr: '=',
+            spRow: '='
         },
         controller: function($scope, $element, $attrs, $transclude) {
 
@@ -20,14 +21,19 @@ angular.module('nd.sptable', ['ngAnimate'])
                 var curCount = 0;
                 //目前最多支持10行
                 for (var irow = 1; irow <= 10; irow++) {
+
                     //获取当前行所有item集合
                     var itemsInRowAll = arr.filter($attrs.rowField, irow);
-                    //过滤非删除的记录
-                    var itemsInRowNotDel = itemsInRowAll.filter($attrs.isdelField, false);
 
                     if (itemsInRowAll.length === 0) {
                         return;
                     }
+
+                    //设置有效行数
+                    $scope.spRow = irow;
+
+                    //过滤非删除的记录
+                    var itemsInRowNotDel = itemsInRowAll.filter($attrs.isdelField, false);
 
                     //计算每行items总量
                     curCount += itemsInRowAll.length;
@@ -45,6 +51,7 @@ angular.module('nd.sptable', ['ngAnimate'])
                         //为每个item设置所在行的下一项索引
                         en.nextIndex = curCount;
                     }
+
                 }
             };
 
@@ -117,6 +124,27 @@ angular.module('nd.sptable', ['ngAnimate'])
         },
         link: function(scope, el, attr, ctrls) {
             ctrls[1].refreshParentArr = ctrls[0].refreshArr;
+
+            var _origalWidth = "";
+
+            // el.bind('mouseover', function() {
+            //     var me = this;
+            //     if (me.offsetWidth < 300) {
+            //         _origalWidth = me.style.width;
+            //         me.style.width = "300px";
+            //         me.style.position = "absolute";
+            //     }
+            // });
+
+            // el.bind('mouseleave', function(event) {
+            //     var me = this;
+            //     if (_origalWidth !== "") {
+            //         // me.style.width = _origalWidth;
+            //         me.style.position = "initial";
+            //         ctrls[1].refreshParentArr();
+            //         scope.$apply();
+            //     }
+            // });
         }
     };
-})
+});

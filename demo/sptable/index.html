@@ -21,39 +21,34 @@
         width: 90%;
     }
     
-    .sptool-v {
+    .sptool {
         width: 7%;
     }
     
-    .sptool-v >button {
+    .sptool > button {
         margin-top: 3px;
-        margin-bottom: 110px;
+        margin-bottom: 130px;
     }
     
     .spitem {
         width: 200px;
-        height: 130px;
+        height: 150px;
         display: inline-block;
         /*margin: 2px;*/
         /*border: 1px solid #d2d2d2;*/
         overflow: auto;
+        position: relative;
     }
     
     .spitem > div {
         margin: 2px;
-        padding: 4px;
-        height: auto;
-        background-color: rgb(237, 240, 231);
-        border: 1px solid #d2d2d2;
+        padding: 8px;
         height: 80%;
-    }
-    
-    .spitem .item-isdel {
-        display: none;
-    }
-    
-    .spitem .item-invalid {
-        background-color: #ffd800;
+        background-color: #f7f7f9;
+        border: 1px solid #e1e1e8;
+        border-radius: 4px;
+        /*-webkit-box-shadow: 0 0 5px rgba(0, 0, 0, .1);
+        box-shadow: 0 0 5px rgba(0, 0, 0, .1);*/
     }
     
     .spitem input {
@@ -64,28 +59,29 @@
 
 <body ng-controller="demoCtrl">
     <div>
-        <div class="sptable spgrid" nd-sptable sp-arr="data" row-field="row" scale-field="scale" isdel-field="isDel" width-unit="sc" width-px="500">
+        <div class="sptable spgrid" nd-sptable sp-arr="data" sp-row="dataRowCount" row-field="row" scale-field="scale" isdel-field="isDel" width-unit="sc" width-px="500">
             <div class="spitem" nd-spitem ng-repeat="d in data" sp-item="d" scale-field="scale" isdel-field="isDel" ng-show="!d.isDel">
                 <div>
                     <div>id:{{d.id}}</div>
                     <div>row:{{d.row}}</div>
                     <!--<input type="number" ng-model="d.scale" ng-model-options="{ updateOn: 'blur',debounce: 500 }"/> {{d.id}} -->
-                    <input type="number" ng-model="d.scale" ng-disabled="!d.isEft" /> {{d.id}}
+                    <input type="number" ng-model="d.scale" ng-disabled="!d.isEft" ng-model-options="{ updateOn: 'blur',debounce: 200 }" /> {{d.id}}
+                    <button type="button" ng-click="del(d)">删除</button>
                 </div>
             </div>
+            <br/>
         </div>
-        <div class="sptool-v spgrid">
-            <button type="button" ng-click="addItem(1)">添加</button>
-            <button type="button" ng-click="addItem(2)">添加</button>
+        <div class="sptool spgrid">
+            <button type="button" ng-click="addItem(i)" ng-repeat="i in dataRowCountList">添加</button>
         </div>
     </div>
     <button type="button" ng-click="insert()">insert</button>
-    <button type="button" ng-click="del()">del</button>
+    <p>行数：{{dataRowCount}}</p>
     <script>
     var app = angular.module('myApp', ['nd.sptable']);
 
     app.controller('demoCtrl', ['$scope', function($scope) {
-
+        $scope.dataRowCount = 0;
         $scope.data = [{
             id: 1,
             row: 1,
@@ -118,6 +114,13 @@
             isEft: true
         }];
 
+
+        $scope.$watch('dataRowCount', function(count) {
+            $scope.dataRowCountList = [];
+            for (var i = 1; i <= count; i++) {
+                $scope.dataRowCountList.push(i);
+            }
+        });
         //
         $scope.addItem = function(rowIndex) {
             var itemsInRowAll = $scope.data.filter('row', rowIndex);
@@ -133,34 +136,17 @@
 
         //
         $scope.insert = function() {
-            $scope.data.splice(2, 0, {
+            $scope.data.splice($scope.data.length, 0, {
                 id: 0,
-                row: 1,
+                row: $scope.dataRowCount + 1,
                 scale: 20,
                 isDel: false,
                 isEft: true
             });
-
-            // $scope.data.push({
-            //     id: 0,
-            //     row: 2,
-            //     scale: 30
-            // });
-
-            // $scope.data.push({
-            //     id: 0,
-            //     row: 3,
-            //     scale: 30
-            // });
-
-            // $scope.data[0].scale = 50;
-
-            // $scope.data[0].scale = 50;
-            // $scope.$digest();
         };
 
-        $scope.del = function() {
-            $scope.data[0].isDel = true;
+        $scope.del = function(item) {
+            item.isDel = true;
         };
     }]);
     </script>
