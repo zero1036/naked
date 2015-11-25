@@ -1,4 +1,4 @@
 /*
  * angular-ui-nd
  */
-angular.module("ui.nd", ["nd.wall"]);
+angular.module("ui.nd", ["nd.wall", "nd.sptable"]);
