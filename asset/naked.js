@@ -26,9 +26,13 @@ angular.module("ui.nd", ["nd.wall", "nd.sptable"]);
     this.refreshArr = function(arr, oldArr) {
         if (arr === undefined) {
             arr = $scope.spArr;
+            if (arr === undefined) {
+                return;
+            }
         }
 
         var curCount = 0;
+        $scope.spRow = 0;
         //目前最多支持10行
         for (var irow = 1; irow <= 10; irow++) {
 
@@ -39,11 +43,12 @@ angular.module("ui.nd", ["nd.wall", "nd.sptable"]);
                 return;
             }
 
-            //设置有效行数
-            $scope.spRow = irow;
-
             //过滤非删除的记录
             var itemsInRowNotDel = itemsInRowAll.filter($attrs.isdelField, false);
+            if (itemsInRowNotDel.length !== 0) {
+                //设置有效行数
+                $scope.spRow += 1;
+            }
 
             //计算每行items总量
             curCount += itemsInRowAll.length;
