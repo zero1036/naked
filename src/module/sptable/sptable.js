@@ -94,23 +94,32 @@ angular.module('nd.sptable', ['ngAnimate'])
             item.width = ((parseInt($attrs.widthPx) * itemScale) / totalScale);
             item.width = item.width + "px";
         } else {
-            item.width = (itemScale / totalScale) * 100;
-            item.width = item.width + "%";
+            if (itemScale === totalScale && itemScale === 0) {
+                item.width = "100%";
+            } else {
+                item.width = (itemScale / totalScale) * 100;
+                item.width = item.width + "%";
+            }
         }
     }
 
     //刷新数据日志
     function refreshDataLog(arr) {
-        console.log("validateData");
+        console.log("validate sptable");
         var lastRow = null;
         for (var i = 0, en; en = arr[i++];) {
             if (lastRow !== null && lastRow > en[$attrs.rowField]) {
-                console.log("——————sptable数据异常——————");
+                console.log("！！！！sptable数据异常！！！！");
             }
 
             lastRow = en[$attrs.rowField];
 
             console.log("i:" + i + " | row:" + en[$attrs.rowField] + " | isDel:" + en[$attrs.isdelField]);
+
+            //验证scale是否为数值
+            if (!(Object.prototype.toString.call(en[$attrs.scaleField]) == "[object Number]")) {
+                console.log("！！！！对象属性" + $attrs.scaleField + "只能为数值！！！！");
+            }
         }
     }
 }])
@@ -166,6 +175,9 @@ angular.module('nd.sptable', ['ngAnimate'])
         return scope.spItem[$attrs.scaleField];
     }, function(scale, oscale) {
         if (scale !== oscale) {
+            if (scale === 0) {
+                return;
+            }
             self.refreshParentArr();
         }
     });
