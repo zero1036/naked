@@ -1,13 +1,10 @@
 angular.module('nd.sptable', ['ngAnimate'])
 
-
-
 .directive('ndSptable', function() {
     return {
         scope: {
             spArr: '=',
             spRow: '='
-            // spRowdel: '='
         },
         controller: 'ndSptableCtrl'
     }
@@ -18,6 +15,9 @@ angular.module('nd.sptable', ['ngAnimate'])
         return;
     }
 
+    //是否汇报日志
+    var _isLog = angular.isDefined($attrs.isLog);
+
     //刷新集合
     this.refreshArr = function(arr, oldArr) {
         if (arr === undefined) {
@@ -27,44 +27,48 @@ angular.module('nd.sptable', ['ngAnimate'])
             }
         }
 
-        var curCount = 0;
-        // $scope.spRow = 0;
+        // var curCount = 0;
+        $scope.spRow = 0;
         //目前最多支持10行
         for (var irow = 1; irow <= 10; irow++) {
 
             //获取当前行所有item集合
             var itemsInRowAll = arr.filter($attrs.rowField, irow);
-
             if (itemsInRowAll.length === 0) {
-                return;
+                break;
             }
 
-            $scope.spRow = irow;
+            //计算每行items总量
+            // curCount += itemsInRowAll.length;
 
             //过滤非删除的记录
             var itemsInRowNotDel = itemsInRowAll.filter($attrs.isdelField, false);
-            // if (itemsInRowNotDel.length !== 0) {
-            //     //设置有效行数
-            //     $scope.spRow += 1;
-            // }
-
-            //计算每行items总量
-            curCount += itemsInRowAll.length;
+            if (itemsInRowNotDel.length !== 0) {
+                //设置有效行数
+                $scope.spRow += 1;
+            }
 
             //获取所有非删除items所占scale总和
             var totalScale = getTotalScale(itemsInRowNotDel);
 
             for (var i = 0, en; en = itemsInRowAll[i++];) {
 
-                //计算每个非删除item项实际宽度
                 if (en[$attrs.isdelField] === false) {
+                    //计算每个非删除item项实际宽度
                     calculateWidth(en, totalScale);
                 }
 
-                //为每个item设置所在行的下一项索引
-                en.nextIndex = curCount;
-            }
+                //更新行号
+                en[$attrs.rowField] = $scope.spRow;
 
+                //更新item设置所在行的下一项索引
+                // en.nextIndex = curCount;
+            }
+        }
+
+        if (_isLog) {
+            //汇报日志
+            refreshDataLog(arr);
         }
     };
 
@@ -92,6 +96,21 @@ angular.module('nd.sptable', ['ngAnimate'])
         } else {
             item.width = (itemScale / totalScale) * 100;
             item.width = item.width + "%";
+        }
+    }
+
+    //刷新数据日志
+    function refreshDataLog(arr) {
+        console.log("validateData");
+        var lastRow = null;
+        for (var i = 0, en; en = arr[i++];) {
+            if (lastRow !== null && lastRow > en[$attrs.rowField]) {
+                console.log("——————sptable数据异常——————");
+            }
+
+            lastRow = en[$attrs.rowField];
+
+            console.log("i:" + i + " | row:" + en[$attrs.rowField] + " | isDel:" + en[$attrs.isdelField]);
         }
     }
 }])

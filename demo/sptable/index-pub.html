@@ -79,6 +79,8 @@
     var app = angular.module('myApp', ['nd.sptable']);
 
     app.controller('demoCtrl', ['$scope', function($scope) {
+        var _id = 100;
+
         $scope.dataRowCount = 0;
         $scope.data = [{
             id: 1,
@@ -112,19 +114,20 @@
             isEft: true
         }];
 
-
+        //监听行数变更
         $scope.$watch('dataRowCount', function(count) {
             $scope.dataRowCountList = [];
             for (var i = 1; i <= count; i++) {
                 $scope.dataRowCountList.push(i);
             }
         });
-        //
-        $scope.addItem = function(rowIndex) {
-            var itemsInRowAll = $scope.data.filter('row', rowIndex);
 
-            $scope.data.splice(itemsInRowAll[0].nextIndex, 0, {
-                id: 0,
+        //往行末添加item
+        $scope.addItem = function(rowIndex) {
+            var idx = getIndex(rowIndex);
+
+            $scope.data.splice(idx, 0, {
+                id: _id++,
                 row: rowIndex,
                 scale: 20,
                 isDel: false,
@@ -132,10 +135,10 @@
             });
         };
 
-        //
+        //插入行
         $scope.insert = function() {
             $scope.data.splice($scope.data.length, 0, {
-                id: 0,
+                id: _id++,
                 row: $scope.dataRowCount + 1,
                 scale: 20,
                 isDel: false,
@@ -146,6 +149,15 @@
         $scope.del = function(item) {
             item.isDel = true;
         };
+
+        function getIndex(rowIndex) {
+            for (var i = 0, en; en = $scope.data[i++];) {
+                if (en.row === rowIndex + 1) {
+                    return i - 1;
+                }
+            }
+            return $scope.data.length;
+        }
     }]);
     </script>
 </body>
