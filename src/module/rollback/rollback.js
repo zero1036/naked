@@ -1,0 +1,64 @@
+angular.module('nd.rollback', [])
+
+.directive('ndModelCommit', ["$parse", function($parse) {
+    return {
+        restrict: 'A',
+        link: function(scope, el, attrs) {
+            el.bind("click", function() {
+                //回调动作
+                var goAction = angular.isDefined(attrs.action) ? $parse(attrs.action) : angular.noop;
+                //验证动作
+                var validationAction = angular.isDefined(attrs.validation) ? $parse(attrs.validation) : angular.noop;
+                var isCommit = angular.isDefined(attrs.commit) && attrs.commit === "true" ? true : false;
+
+                // if (isCommit === true && angular.isDefined(attrs.validation)) {
+                //     isCommit = validationAction(scope);
+                // }
+
+                //通知回滚
+                scope.$emit("ngModelActionRollback", isCommit, validationAction);
+
+                goAction(scope);
+                scope.$apply();
+            });
+        }
+    };
+}])
+
+.directive('ndModelRollback', function() {
+    return {
+        restrict: 'A',
+        scope: false,
+        require: "?ngModel",
+        priority: 20,
+        link: function(scope, el, attrs, ngModel) {
+            var pViewVaulue = null;
+
+            scope.$on("ngModelActionRollback", function(event, isEnter, validationAction) {
+                if (isEnter) {
+                    isEnter = validationAction(scope, {
+                        vw: ngModel.$viewValue
+                    });
+                }
+
+                if (isEnter) {
+                    ngModel.$commitViewValue();
+                    ngModel.$render();
+                    scope.$apply();
+                } else {
+                    ngModel.$rollbackViewValue();
+                    ngModel.$render();
+                }
+            });
+
+            el.bind('blur', function(e) {
+                pViewVaulue = ngModel.$viewValue;
+
+                ngModel.$rollbackViewValue();
+
+                ngModel.$setViewValue(pViewVaulue);
+                ngModel.$render();
+            });
+        }
+    };
+});
