@@ -59,7 +59,7 @@
 
 <body ng-controller="demoCtrl">
     <div>
-        <div class="sptable spgrid" nd-sptable sp-arr="data" sp-row="dataRowCount" row-field="row" scale-field="scale" isdel-field="isDel" width-unit="sc" width-px="500" is-log>
+        <div class="sptable spgrid" nd-sptable sp-arr="data" sp-row="dataRowCount" row-field="row" scale-field="scale" isdel-field="isDel" width-unit="sc" width-px="500" is-log="{{isLog}}">
             <div class="spitem" nd-spitem ng-repeat="d in data" sp-item="d" scale-field="scale" isdel-field="isDel" ng-show="!d.isDel">
                 <div>
                     <div>id:{{d.id}}</div>
@@ -82,7 +82,7 @@
 
     app.controller('demoCtrl', ['$scope', function($scope) {
         var _id = 100;
-
+        $scope.isLog = true;
         $scope.dataRowCount = 0;
         $scope.data = [{
             id: 1,

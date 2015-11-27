@@ -4,7 +4,8 @@ angular.module('nd.sptable', ['ngAnimate'])
     return {
         scope: {
             spArr: '=',
-            spRow: '='
+            spRow: '=',
+            isLog: '@'
         },
         controller: 'ndSptableCtrl'
     }
@@ -14,9 +15,6 @@ angular.module('nd.sptable', ['ngAnimate'])
     if (!angular.isDefined($attrs.rowField) || !angular.isDefined($attrs.scaleField) || !angular.isDefined($attrs.isdelField)) {
         return;
     }
-
-    //是否汇报日志
-    var _isLog = angular.isDefined($attrs.isLog);
 
     //刷新集合
     this.refreshArr = function(arr, oldArr) {
@@ -66,7 +64,7 @@ angular.module('nd.sptable', ['ngAnimate'])
             }
         }
 
-        if (_isLog) {
+        if ($scope.isLog) {
             //汇报日志
             refreshDataLog(arr);
         }
