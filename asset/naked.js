@@ -42,7 +42,7 @@ angular.module("ui.nd", ["nd.wall", "nd.sptable", "nd.rollback"]);
             scope.$on("ngModelActionRollback", function(event, isEnter, validationAction) {
                 if (isEnter) {
                     isEnter = validationAction(scope, {
-                        vw: ngModel.$viewValue
+                        vm: ngModel.$viewValue
                     });
                 }
 

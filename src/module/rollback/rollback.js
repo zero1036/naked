@@ -37,7 +37,7 @@ angular.module('nd.rollback', [])
             scope.$on("ngModelActionRollback", function(event, isEnter, validationAction) {
                 if (isEnter) {
                     isEnter = validationAction(scope, {
-                        vw: ngModel.$viewValue
+                        vm: ngModel.$viewValue
                     });
                 }
 
