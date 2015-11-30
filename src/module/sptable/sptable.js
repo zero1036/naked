@@ -12,7 +12,7 @@ angular.module('nd.sptable', ['ngAnimate'])
 })
 
 .controller('ndSptableCtrl', ['$scope', '$element', '$attrs', '$transclude', '$parse', function($scope, $element, $attrs, $transclude, $parse) {
-    if (!angular.isDefined($attrs.rowField) || !angular.isDefined($attrs.scaleField) || !angular.isDefined($attrs.isdelField)) {
+    if (!angular.isDefined($attrs.rowField) || !angular.isDefined($attrs.colField) || !angular.isDefined($attrs.scaleField) || !angular.isDefined($attrs.isdelField)) {
         return;
     }
 
@@ -57,11 +57,16 @@ angular.module('nd.sptable', ['ngAnimate'])
                 items: itemsInRowAll
             });
 
+            var iCol = 0;
             for (var i = 0, en; en = itemsInRowAll[i++];) {
 
                 if (en[$attrs.isdelField] === false) {
                     //计算每个非删除item项实际宽度
                     calculateWidth(en, totalScale);
+
+                    //生成列序号
+                    iCol += 1;
+                    en[$attrs.colField] = iCol;
                 }
 
                 //更新行号
@@ -123,7 +128,7 @@ angular.module('nd.sptable', ['ngAnimate'])
 
             lastRow = en[$attrs.rowField];
 
-            console.log("i:" + i + " | row:" + en[$attrs.rowField] + " | isDel:" + en[$attrs.isdelField]);
+            console.log("i:" + i + " | row:" + en[$attrs.rowField] + " | col:" + en[$attrs.colField] + " | isDel:" + en[$attrs.isdelField]);
 
             //验证scale是否为数值
             if (!(Object.prototype.toString.call(en[$attrs.scaleField]) == "[object Number]")) {

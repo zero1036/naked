@@ -39,6 +39,7 @@ angular.module('nd.rollback', [])
                     isEnter = validationAction(scope, {
                         vm: ngModel.$viewValue
                     });
+                    isEnter = isEnter === undefined ? true : isEnter;
                 }
 
                 if (isEnter) {
