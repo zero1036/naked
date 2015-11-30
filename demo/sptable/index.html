@@ -44,11 +44,15 @@
         margin: 2px;
         padding: 8px;
         height: 80%;
-        background-color: #ffd800;
+        background-color: #ffffff;
         border: 1px solid #e1e1e8;
-        border-radius: 4px;
-        /*-webkit-box-shadow: 0 0 5px rgba(0, 0, 0, .1);
-        box-shadow: 0 0 5px rgba(0, 0, 0, .1);*/
+        border-radius: 1px;
+    }
+    
+    .spitem-warn > div {
+        border: 1px solid #ff763a;
+        -webkit-box-shadow: 1px 1px 8px rgba(255, 118, 58, .7);
+        box-shadow: 1px 1px 8px rgba(255, 118, 58, .7);
     }
     
     .spitem input {
@@ -59,7 +63,7 @@
 
 <body ng-controller="demoCtrl">
     <div>
-        <div class="sptable spgrid" nd-sptable sp-arr="data" sp-row="dataRowCount" row-field="row" scale-field="scale" isdel-field="isDel" width-unit="sc" width-px="500" is-log="{{isLog}}">
+        <div class="sptable spgrid" nd-sptable sp-arr="data" sp-row="dataRowCount" row-field="row" scale-field="scale" isdel-field="isDel" width-unit="sc" width-px="500" is-log="{{isLog}}" on-validate="validateRow(items)">
             <div class="spitem" nd-spitem ng-repeat="d in data" sp-item="d" scale-field="scale" isdel-field="isDel" ng-show="!d.isDel">
                 <div>
                     <div>id:{{d.id}}</div>
@@ -148,9 +152,18 @@
             });
         };
 
+        //删除item
         $scope.del = function(item) {
             item.isDel = true;
         };
+
+        //验证行记录
+        $scope.validateRow = function(items) {
+            if (items.length < 2) {
+                return false;
+            }
+            return true;
+        }
 
         function getIndex(rowIndex) {
             for (var i = 0, en; en = $scope.data[i++];) {

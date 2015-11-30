@@ -57,7 +57,7 @@
 
 <body ng-controller="demoCtrl">
     <div>
-        <div class="sptable spgrid" nd-sptable sp-arr="data" sp-row="dataRowCount" row-field="row" scale-field="scale" isdel-field="isDel" width-unit="sc" width-px="500" is-log="{{isLog}}">
+        <div class="sptable spgrid" nd-sptable sp-arr="data" sp-row="dataRowCount" row-field="row" scale-field="scale" isdel-field="isDel" width-unit="sc" width-px="500" is-log="{{isLog}}" on-validate="validateRow(items)">
             <div class="spitem" nd-spitem ng-repeat="d in data" sp-item="d" scale-field="scale" isdel-field="isDel" ng-show="!d.isDel">
                 <div>
                     <div>id:{{d.id}}</div>
@@ -80,7 +80,7 @@
 
     app.controller('demoCtrl', ['$scope', function($scope) {
         var _id = 100;
-
+        $scope.isLog = false;
         $scope.dataRowCount = 0;
         $scope.data = [{
             id: 1,
@@ -146,9 +146,18 @@
             });
         };
 
+        //删除item
         $scope.del = function(item) {
             item.isDel = true;
         };
+
+        //验证行记录
+        $scope.validateRow = function(items) {
+            if (items.length < 2) {
+                return false;
+            }
+            return true;
+        }
 
         function getIndex(rowIndex) {
             for (var i = 0, en; en = $scope.data[i++];) {

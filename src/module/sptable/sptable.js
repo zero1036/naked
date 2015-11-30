@@ -11,7 +11,7 @@ angular.module('nd.sptable', ['ngAnimate'])
     }
 })
 
-.controller('ndSptableCtrl', ['$scope', '$element', '$attrs', '$transclude', function($scope, $element, $attrs, $transclude) {
+.controller('ndSptableCtrl', ['$scope', '$element', '$attrs', '$transclude', '$parse', function($scope, $element, $attrs, $transclude, $parse) {
     if (!angular.isDefined($attrs.rowField) || !angular.isDefined($attrs.scaleField) || !angular.isDefined($attrs.isdelField)) {
         return;
     }
@@ -24,6 +24,9 @@ angular.module('nd.sptable', ['ngAnimate'])
                 return;
             }
         }
+
+        //获取行验证执行方法
+        var validateRowInvoke = angular.isDefined($attrs.onValidate) ? $parse($attrs.onValidate) : angular.noop;
 
         // var curCount = 0;
         $scope.spRow = 0;
@@ -49,6 +52,11 @@ angular.module('nd.sptable', ['ngAnimate'])
             //获取所有非删除items所占scale总和
             var totalScale = getTotalScale(itemsInRowNotDel);
 
+            //获取行内集合是否通过验证
+            var isWarning = validateRowInvoke($scope.$parent, {
+                items: itemsInRowNotDel
+            });
+
             for (var i = 0, en; en = itemsInRowAll[i++];) {
 
                 if (en[$attrs.isdelField] === false) {
@@ -58,6 +66,9 @@ angular.module('nd.sptable', ['ngAnimate'])
 
                 //更新行号
                 en[$attrs.rowField] = $scope.spRow;
+
+                //设置警告信息
+                en.warn = isWarning === undefined ? false : isWarning;
 
                 //更新item设置所在行的下一项索引
                 // en.nextIndex = curCount;
@@ -166,6 +177,20 @@ angular.module('nd.sptable', ['ngAnimate'])
     }, function(wid) {
         //获取元素
         $element[0].style.width = wid;
+    });
+
+    //监听item警告信息变化，并改变DOM样式
+    $scope.$watch(function(scope) {
+        return scope.spItem.warn;
+    }, function(warn) {
+        if (warn !== undefined) {
+            var ele = angular.element($element);
+            if (!warn) {
+                ele.removeClass('spitem-warn');
+            } else {
+                ele.addClass('spitem-warn');
+            }
+        }
     });
 
     //监听item的比例变化，并通知父指令全局刷新所有item
