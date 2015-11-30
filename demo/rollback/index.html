@@ -16,9 +16,9 @@
 <body ng-controller="demoCtrl">
     <div>
         name:{{name}}
-        <input type="text" ng-model="name" ng-model-options="{ updateOn: 'blur',debounce: 500 }" nd-model-rollback />
-        <button nd-model-commit commit="true" action="save()" validation="check(vm)">save</button>
-        <button nd-model-commit commit="false">cancel</button>
+        <input type="text" ng-model="name" ng-model-options="{ updateOn: 'blur',debounce: 500 }" nd-model-rollback="name" />
+        <button nd-model-commit="name" commit="true" action="save()" validation="check(vm)">save</button>
+        <button nd-model-commit="name" commit="false">cancel</button>
     </div>
     <script>
     var app = angular.module('myApp', ['nd.rollback']);

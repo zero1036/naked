@@ -16,7 +16,7 @@ angular.module('nd.rollback', [])
                 // }
 
                 //通知回滚
-                scope.$emit("ngModelActionRollback", isCommit, validationAction);
+                scope.$emit("ngModelActionRollback" + attrs.ndModelCommit, isCommit, validationAction);
 
                 goAction(scope);
                 scope.$apply();
@@ -34,7 +34,7 @@ angular.module('nd.rollback', [])
         link: function(scope, el, attrs, ngModel) {
             var pViewVaulue = null;
 
-            scope.$on("ngModelActionRollback", function(event, isEnter, validationAction) {
+            scope.$on("ngModelActionRollback" + attrs.ndModelRollback, function(event, isEnter, validationAction) {
                 if (isEnter) {
                     isEnter = validationAction(scope, {
                         vm: ngModel.$viewValue

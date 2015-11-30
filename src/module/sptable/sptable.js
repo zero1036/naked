@@ -53,8 +53,8 @@ angular.module('nd.sptable', ['ngAnimate'])
             var totalScale = getTotalScale(itemsInRowNotDel);
 
             //获取行内集合是否通过验证
-            var isWarning = validateRowInvoke($scope.$parent, {
-                items: itemsInRowNotDel
+            var isNotWarning = validateRowInvoke($scope.$parent, {
+                items: itemsInRowAll
             });
 
             for (var i = 0, en; en = itemsInRowAll[i++];) {
@@ -68,7 +68,7 @@ angular.module('nd.sptable', ['ngAnimate'])
                 en[$attrs.rowField] = $scope.spRow;
 
                 //设置警告信息
-                en.warn = isWarning === undefined ? false : isWarning;
+                en.warn = isNotWarning === undefined ? false : !isNotWarning;
 
                 //更新item设置所在行的下一项索引
                 // en.nextIndex = curCount;
