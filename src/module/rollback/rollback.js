@@ -9,16 +9,15 @@ angular.module('nd.rollback', [])
                 var goAction = angular.isDefined(attrs.action) ? $parse(attrs.action) : angular.noop;
                 //验证动作
                 var validationAction = angular.isDefined(attrs.validation) ? $parse(attrs.validation) : angular.noop;
+                //是否提交
                 var isCommit = angular.isDefined(attrs.commit) && attrs.commit === "true" ? true : false;
-
-                // if (isCommit === true && angular.isDefined(attrs.validation)) {
-                //     isCommit = validationAction(scope);
-                // }
 
                 //通知回滚
                 scope.$emit("ngModelActionRollback" + attrs.ndModelCommit, isCommit, validationAction);
 
+                //提交成功回调
                 goAction(scope);
+
                 scope.$apply();
             });
         }
