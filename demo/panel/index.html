@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="myApp">
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -16,9 +16,10 @@
     }
     
     .panel-item {
-        height: : 200px;
-        width: : 200px;
-        background-color: : #f2f2f2;
+        height: 200px;
+        width: 200px;
+        background-color: #ffffff;
+        /*border: 1px solid red;*/
     }
     </style>
 </head>
@@ -31,43 +32,153 @@
     var app = angular.module('myApp', ['nd.panel'])
 
     app.controller('demoCtrl', ['$scope', function($scope) {
-
+        $scope.name = "";
     }]);
 
-    app.directvie('test1', function() {
+    var logger = function() {
+        var logger = function() {
+            this.log = function(msg) {
+                if (this.isLog) {
+                    console.log(msg);
+                }
+            };
+        };
+        return logger;
+    }();
+
+    var patch = function() {
+        var patch = function() {
+            this.bindHandler = function() {
+                var outer = this.outer;
+                var device = this._device();
+                if (!device.hasTouch) {
+                    outer.style.cursor = 'pointer';
+                    outer.ondragstart = function(evt) {
+                        if (evt) {
+                            return false;
+                        }
+                        return true;
+                    };
+                }
+                outer.addEventListener(device.startEvt, this);
+                outer.addEventListener(device.moveEvt, this);
+                outer.addEventListener(device.endEvt, this);
+                window.addEventListener('orientationchange', this);
+            };
+
+            this.handleEvent = function(evt) {
+                var device = this._device();
+                switch (evt.type) {
+                    case device.startEvt:
+                        this.startHandler(evt);
+                        break;
+                    case device.moveEvt:
+                        this.moveHandler(evt);
+                        break;
+                    case device.endEvt:
+                        this.endHandler(evt);
+                        break;
+                    case 'touchcancel':
+                        this.endHandler(evt);
+                        break;
+                    case 'orientationchange':
+                        //this.orientationchangeHandler();
+                        break;
+                    case 'focus':
+                        //this.isAutoplay && this.play();
+                        break;
+                    case 'blur':
+                        //this.pause();
+                        break;
+                }
+            };
+
+
+            //
+            this._device = function() {
+                var hasTouch = !!('ontouchstart' in window || window.DocumentTouch && document instanceof window.DocumentTouch);
+                var startEvt = hasTouch ? 'touchstart' : 'mousedown';
+                var moveEvt = hasTouch ? 'touchmove' : 'mousemove';
+                var endEvt = hasTouch ? 'touchend' : 'mouseup';
+                return {
+                    hasTouch: hasTouch,
+                    startEvt: startEvt,
+                    moveEvt: moveEvt,
+                    endEvt: endEvt
+                };
+            };
+        };
+        patch.prototype = new logger();
+
+        return patch;
+    }();
+
+    var dragHandler = function() {
+        var dragHandler = function(opts) {
+            this.isLog = true;
+            this.outer = opts.outer;
+            this.bindHandler();
+            this.startHandler = function(evt) {
+                 evt.preventDefault();
+                // // if (this.fixPage) {
+                // //     evt.preventDefault();
+                // // }
+                // var device = this._device();
+
+                // this.isMoving = true;
+
+                // this.startX = device.hasTouch ? evt.targetTouches[0].pageX : evt.pageX;
+                // this.startY = device.hasTouch ? evt.targetTouches[0].pageY : evt.pageY;
+
+                // // this._startHandler && this._startHandler(evt);
+                this.log("start");
+            };
+            this.moveHandler = function(evt) {
+                 evt.preventDefault();
+                this.log("isMoving:" + this.isMoving);
+
+                // if (this.isMoving) {
+                //     var device = this._device();
+
+                //     var offset = {
+                //         X: device.hasTouch ? evt.targetTouches[0].pageX - this.startX : evt.pageX - this.startX,
+                //         Y: device.hasTouch ? evt.targetTouches[0].pageY - this.startY : evt.pageY - this.startY
+                //     };
+
+                //     // evt.preventDefault();
+                //     this.outer.style.webkitTransition = 'all 0s ease';
+                //     this.outer.style.webkitTransform = 'translateZ(0) translate(' + offset.X + 'px,' + offset.Y + 'px)';
+
+                //     this.offset = offset;
+                // }
+            };
+            this.endHandler = function(evt) {
+                 evt.preventDefault();
+                this.log("end:" + this.isMoving);
+
+                // this.isMoving = false;
+                // var offset = this.offset;
+                // // var axis = this.axis;
+                // // var boundary = this.slideBoundary;
+                // // var absOffset = Math.abs(offset[axis]);
+
+                // this.offset.X = this.offset.Y = 0;
+            };
+        };
+
+        dragHandler.prototype = new patch();
+        return dragHandler;
+    }();
+
+    app.directive('test1', function() {
         return {
             scope: {},
             replace: true,
             template: "<div class='panel-item'></div>",
             link: function(scope, ele, attr, ctrl) {
-                var ts = function() {
-                    
-                    var ts = function(opts) {
-                        this.item = opts.item;
-                        this._bindHandler = function() {
-                            var item = this.item;
-
-                            outer.addEventListener(device.startEvt, this);
-                        };
-                        ts.prototype._device = function() {
-                            var hasTouch = !!('ontouchstart' in window || window.DocumentTouch && document instanceof window.DocumentTouch);
-                            var startEvt = hasTouch ? 'touchstart' : 'mousedown';
-                            var moveEvt = hasTouch ? 'touchmove' : 'mousemove';
-                            var endEvt = hasTouch ? 'touchend' : 'mouseup';
-                            return {
-                                hasTouch: hasTouch,
-                                startEvt: startEvt,
-                                moveEvt: moveEvt,
-                                endEvt: endEvt
-                            };
-                        };
-                    };
-                }();
-
-                var _ts = new ts({
-                    item: ele
+                var _handler = new dragHandler({
+                    outer: ele[0]
                 });
-
             }
         };
     });
