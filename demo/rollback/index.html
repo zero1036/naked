@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+    <title>rollback</title>
+    <script src="../../src/lib/angular.js"></script>
+    <script src="../../src/module/rollback/rollback.js"></script>
+</head>
+
+<body ng-controller="demoCtrl">
+    <div>
+        name:{{name}}
+        <input type="text" ng-model="name" ng-model-options="{ updateOn: 'blur',debounce: 500 }" nd-model-rollback="name" />
+        <button nd-model-commit="name" commit="true" action="save()" validation="check(vm)">save</button>
+        <button nd-model-commit="name" commit="false">cancel</button>
+    </div>
+    <div>
+        age:{{age}}
+        <input type="number" ng-model="age" ng-model-options="{ updateOn: 'blur',debounce: 500 }" nd-model-rollback="age" />
+        <button nd-model-commit="age" commit="true">save</button>
+        <button nd-model-commit="age" commit="false">cancel</button>
+    </div>
+    <script>
+    var app = angular.module('myApp', ['nd.rollback']);
+
+    app.controller('demoCtrl', ['$scope', function($scope) {
+        $scope.name = "tg";
+        $scope.age = 27;
+
+        $scope.save = function() {
+            console.log("saving");
+        };
+
+        $scope.check = function(vm) {
+            if (vm === "mark") {
+                return false;
+            }
+            return true;
+        };
+    }]);
+    </script>
+</body>
+
+</html>

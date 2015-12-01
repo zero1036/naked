@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+    <title>sptable</title>
+    <link href="../../src/css/animations.css" rel="stylesheet">
+    <!-- <link href="../../src/css/wall.css" rel="stylesheet"> -->
+    <script src="../../src/lib/angular.js"></script>
+    <script src="../../src/lib/angular-animate.js"></script>
+    <script src="../../src/module/util/Array.js"></script>
+    <script src="../../src/module/sptable/sptable.js"></script>
+    <style>
+    .spgrid {
+        display: inline-block;
+        vertical-align: top;
+    }
+    
+    .sptable {
+        width: 90%;
+    }
+    
+    .sptool {
+        width: 7%;
+    }
+    
+    .sptool > button {
+        margin-top: 3px;
+        margin-bottom: 130px;
+    }
+    
+    .spitem {
+        width: 200px;
+        height: 150px;
+        display: inline-block;
+        /*margin: 2px;*/
+        /*border: 1px solid #d2d2d2;*/
+        overflow: auto;
+        position: relative;
+    }
+    
+    .spitem > div {
+        margin: 2px;
+        padding: 8px;
+        height: 80%;
+        background-color: #ffffff;
+        border: 1px solid #e1e1e8;
+        border-radius: 1px;
+    }
+    
+    .spitem-warn > div {
+        border: 1px solid #ff763a;
+        -webkit-box-shadow: 1px 1px 8px rgba(255, 118, 58, .7);
+        box-shadow: 1px 1px 8px rgba(255, 118, 58, .7);
+    }
+    
+    .spitem input {
+        width: 60%;
+    }
+    </style>
+</head>
+
+<body ng-controller="demoCtrl">
+    <div>
+        <div class="sptable spgrid" nd-sptable sp-arr="data" sp-row="dataRowCount" row-field="row" col-field="col" scale-field="scale" isdel-field="isDel" width-unit="sc" width-px="500" is-log="{{isLog}}" on-validate="validateRow(items)">
+            <div class="spitem" nd-spitem ng-repeat="d in data" sp-item="d" scale-field="scale" isdel-field="isDel" ng-show="!d.isDel">
+                <div>
+                    <div>id:{{d.id}}</div>
+                    <div>row:{{d.row}}</div>
+                    <!--<input type="number" ng-model="d.scale" ng-model-options="{ updateOn: 'blur',debounce: 500 }"/> {{d.id}} -->
+                    <input type="number" ng-model="d.scale" ng-disabled="!d.isEft" ng-model-options="{ updateOn: 'blur',debounce: 200 }" /> {{d.id}}
+                    <button type="button" ng-click="del(d)">删除</button>
+                </div>
+            </div>
+            <br/>
+        </div>
+        <div class="sptool spgrid">
+            <button type="button" ng-click="addItem(i)" ng-repeat="i in dataRowCountList">添加</button>
+        </div>
+    </div>
+    <button type="button" ng-click="insert()">insert</button>
+    <p>行数：{{dataRowCount}}</p>
+    <script>
+    var app = angular.module('myApp', ['nd.sptable']);
+
+    app.controller('demoCtrl', ['$scope', function($scope) {
+        var _id = 100;
+        $scope.isLog = true;
+        $scope.dataRowCount = 0;
+        $scope.data = [{
+            id: 1,
+            row: 1,
+            col: 0,
+            scale: 10,
+            isDel: false,
+            isEft: true
+        }, {
+            id: 2,
+            row: 1,
+            col: 0,
+            scale: 50,
+            isDel: false,
+            isEft: false
+        }, {
+            id: 3,
+            row: 2,
+            col: 0,
+            scale: 40,
+            isDel: false,
+            isEft: true
+        }, {
+            id: 4,
+            row: 2,
+            col: 0,
+            scale: 40,
+            isDel: true,
+            isEft: true
+        }, {
+            id: 5,
+            row: 2,
+            col: 0,
+            scale: 40,
+            isDel: false,
+            isEft: true
+        }];
+
+        //监听行数变更
+        $scope.$watch('dataRowCount', function(count) {
+            $scope.dataRowCountList = [];
+            for (var i = 1; i <= count; i++) {
+                $scope.dataRowCountList.push(i);
+            }
+        });
+
+        //往行末添加item
+        $scope.addItem = function(rowIndex) {
+            var idx = getIndex(rowIndex);
+
+            $scope.data.splice(idx, 0, {
+                id: _id++,
+                row: rowIndex,
+                scale: 20,
+                isDel: false,
+                isEft: true
+            });
+        };
+
+        //插入行
+        $scope.insert = function() {
+            $scope.data.splice($scope.data.length, 0, {
+                id: _id++,
+                row: $scope.dataRowCount + 1,
+                scale: 20,
+                isDel: false,
+                isEft: true
+            });
+        };
+
+        //删除item
+        $scope.del = function(item) {
+            item.isDel = true;
+        };
+
+        //验证行记录
+        $scope.validateRow = function(items) {
+            if (items.length < 2) {
+                return false;
+            }
+            return true;
+        }
+
+        function getIndex(rowIndex) {
+            for (var i = 0, en; en = $scope.data[i++];) {
+                if (en.row === rowIndex + 1) {
+                    return i - 1;
+                }
+            }
+            return $scope.data.length;
+        }
+    }]);
+    </script>
+</body>
+
+</html>
