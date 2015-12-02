@@ -52,6 +52,17 @@
         window.PointerEventsSupport = true;
     }
 
+    window.requestAnimFrame = (function() {
+        'use strict';
+
+        return window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            function(callback) {
+                window.setTimeout(callback, 1000 / 60);
+            };
+    })();
+
     var logger = function() {
         var logger = function() {
             this.log = function(msg) {
@@ -67,6 +78,14 @@
         var dragHandler = function(opts) {
             this.isLog = true;
             this.outer = opts.outer;
+
+
+
+            // On resize, change the slop value
+            this.resize = function() {
+                itemWidth = this.outer.clientWidth;
+                slopValue = itemWidth * (1 / 4);
+            };
 
             this.bindHandler = function() {
                 var outer = this.outer;
@@ -109,14 +128,18 @@
                     document.addEventListener('mouseup', this.handleGestureEnd, true);
                 }
 
+                this._startHandler(evt);
+
+
                 console.log("start");
             }.bind(this);
 
             // Handle move gestures
             this.handleGestureMove = function(evt) {
                 evt.preventDefault();
-
+                this._moveHandler(evt);
                 console.log("moving");
+
             }.bind(this);
 
 
@@ -146,26 +169,22 @@
                     document.removeEventListener('mouseup', this.handleGestureEnd, true);
                 }
 
+                this._endHandler(evt);
                 console.log("end");
             }.bind(this);
 
             this.bindHandler();
 
-            function getGesturePointFromEvent(evt) {
-                var point = {};
 
-                if (evt.targetTouches) {
-                    console.log(evt.targetTouches[0]);
-                    point.x = evt.targetTouches[0].clientX;
-                    point.y = evt.targetTouches[0].clientY;
-                } else {
-                    // Either Mouse event or Pointer Event
-                    point.x = evt.clientX;
-                    point.y = evt.clientY;
-                }
+        };
 
-                return point;
+        dragHandler.prototype.extend = function(plugin, main) {
+            if (!main) {
+                main = dragHandler.prototype;
             }
+            Object.keys(plugin).forEach(function(property) {
+                Object.defineProperty(main, property, Object.getOwnPropertyDescriptor(plugin, property));
+            });
         };
 
         return dragHandler;
@@ -179,10 +198,83 @@
             template: "<div class='panel-item'></div>",
             link: function(scope, ele, attr, ctrl) {
 
+                dragHandler.prototype.extend({
+                    _startHandler: function(evt) {
+                        initialTouchPos = getGesturePointFromEvent(evt);
+                        this.outer.style.transition = 'initial';
+                    },
+                    _moveHandler: function(evt) {
+                        lastTouchPos = getGesturePointFromEvent(evt);
+
+                        if (isAnimating) {
+                            return;
+                        }
+
+                        isAnimating = true;
+
+                        window.requestAnimFrame(onAnimFrame);
+                    },
+                    _endHandler: function(evt) {
+
+                    }
+
+                });
+
 
                 var _handler = new dragHandler({
                     outer: ele[0]
                 });
+
+
+                var STATE_DEFAULT = 1;
+                var STATE_LEFT_SIDE = 2;
+                var STATE_RIGHT_SIDE = 3;
+
+                var swipeFrontElement = ele[0];
+                var isAnimating = false;
+                var initialTouchPos = null;
+                var lastTouchPos = null;
+                var currentXPosition = 0;
+                var currentState = STATE_DEFAULT;
+                var handleSize = 10;
+
+                // Perform client width here as this can be expensive and doens't
+                // change until window.onresize
+                var itemWidth = swipeFrontElement.clientWidth;
+                var slopValue = itemWidth * (1 / 4);
+
+
+                function getGesturePointFromEvent(evt) {
+                    var point = {};
+
+                    if (evt.targetTouches) {
+                        console.log(evt.targetTouches[0]);
+                        point.x = evt.targetTouches[0].clientX;
+                        point.y = evt.targetTouches[0].clientY;
+                    } else {
+                        // Either Mouse event or Pointer Event
+                        point.x = evt.clientX;
+                        point.y = evt.clientY;
+                    }
+
+                    return point;
+                }
+
+                function onAnimFrame() {
+                    if (!isAnimating) {
+                        return;
+                    }
+
+                    var differenceInX = initialTouchPos.x - lastTouchPos.x;
+
+                    var newXTransform = (currentXPosition - differenceInX) + 'px';
+                    var transformStyle = 'translateX(' + newXTransform + ')';
+                    swipeFrontElement.style['-webkit-transform'] = transformStyle;
+                    swipeFrontElement.style['-moz-transform'] = transformStyle;
+                    swipeFrontElement.style.transform = transformStyle;
+
+                    isAnimating = false;
+                }
 
             }
         };
