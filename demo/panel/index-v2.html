@@ -57,7 +57,6 @@
             this.log = function(msg) {
 
                 console.log(msg);
-
             };
         };
         return logger;
@@ -65,10 +64,11 @@
 
     var patch = function() {
         var patch = function() {
-            var patchEvents = null;
+           
+
             this.bindHandler = function() {
                 var outer = this.outer;
-                patchEvents = this.patchEvents;
+                _derived = this;
 
                 // Check if pointer events are supported.
                 if (window.PointerEventsSupport) {
@@ -108,7 +108,7 @@
                     document.addEventListener('mouseup', this.handleGestureEnd, true);
                 }
 
-                // patchEvents.startHandler(evt);
+                this.startHandler.call(this, evt);
                 this.log("start");
             }.bind(this);
 
@@ -116,7 +116,7 @@
             this.handleGestureMove = function(evt) {
                 evt.preventDefault();
 
-                // patchEvents.moveHandler(evt);
+                this.moveHandler(evt);
                 this.log("moving");
             }.bind(this);
 
@@ -147,10 +147,11 @@
                     document.removeEventListener('mouseup', this.handleGestureEnd, true);
                 }
 
-                // patchEvents.endHandler(evt);
+                this.endHandler(evt);
                 this.log("end");
             }.bind(this);
         };
+
         patch.prototype = new logger();
 
         return patch;
@@ -158,46 +159,28 @@
 
     var dragHandler = function() {
         var dragHandler = function(opts) {
-            var self = this;
             this.isLog = true;
             this.outer = opts.outer;
-
-
-            this.startHandler = function() {
-                var self = this;
-                console.log(self.isLog);
-            };
-            this.moveHandler = function() {
-
-            };
-            this.endHandler = function() {
-
-            };
-            this.patchEvents = {
-                startHandler: self.startHandler,
-                moveHandler: self.moveHandler,
-                endHandler: self.endHandler
-            };
             this.bindHandler();
-            // this.startHandler();
         };
 
         dragHandler.prototype = new patch();
-        // dragHandler.prototype.startHandler = function(evt) {
-        //     var self = this;
-        //     console.log(self.isLog);
-        // };
+        dragHandler.prototype.startHandler = function(evt) {
+            console.log("s1");
+        };
 
-        // dragHandler.prototype.moveHandler = function(evt) {
-        //     console.log("moveHandler");
-        // };
+        dragHandler.prototype.moveHandler = function(evt) {
+            console.log("m1");
+        };
 
-        // dragHandler.prototype.endHandler = function(evt) {
-        //     console.log("endHandler");
-        // };
+        dragHandler.prototype.endHandler = function(evt) {
+            console.log("e1");
+        };
 
         return dragHandler;
     }();
+
+
 
     app.directive('test1', function() {
         return {
@@ -208,6 +191,9 @@
                 var _handler = new dragHandler({
                     outer: ele[0]
                 });
+
+                var _p = new patch();
+                console.log(_handler);
             }
         };
     });

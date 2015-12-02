@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+    <title></title>
+    <script src="../../src/lib/angular.js"></script>
+    <script src="../../src/lib/angular-animate.js"></script>
+    <script src="../../src/module/panel/panel.js"></script>
+    <style type="text/css">
+    body {
+        font-family: 'Open Sans', sans-serif;
+        font-weight: 400;
+        background: #ecf0f1;
+    }
+    
+    .panel-item {
+        height: 200px;
+        width: 200px;
+        background-color: #ffffff;
+        /*position: absolute;*/
+        /*border: 1px solid red;*/
+    }
+    </style>
+</head>
+
+<body>
+    <div class="swipe-element">
+        <div test1></div>
+    </div>
+    <script>
+    var app = angular.module('myApp', ['nd.panel'])
+
+    app.controller('demoCtrl', ['$scope', function($scope) {
+        $scope.name = "";
+    }]);
+
+    var pointerDownName = 'MSPointerDown';
+    var pointerUpName = 'MSPointerUp';
+    var pointerMoveName = 'MSPointerMove';
+
+    if (window.PointerEvent) {
+        pointerDownName = 'pointerdown';
+        pointerUpName = 'pointerup';
+        pointerMoveName = 'pointermove';
+    }
+
+    // Simple way to check if some form of pointerevents is enabled or not
+    window.PointerEventsSupport = false;
+    if (window.PointerEvent || window.navigator.msPointerEnabled) {
+        window.PointerEventsSupport = true;
+    }
+
+    var logger = function() {
+        var logger = function() {
+            this.log = function(msg) {
+                console.log(msg);
+            };
+        };
+        return logger;
+    }();
+
+
+    var dragHandler = function() {
+
+        var dragHandler = function(opts) {
+            this.isLog = true;
+            this.outer = opts.outer;
+
+
+            // this.bindHandler = function() {
+            //     var outer = this.outer;
+
+            //     // Check if pointer events are supported.
+            //     if (window.PointerEventsSupport) {
+            //         // Add Pointer Event Listener
+            //         outer.addEventListener(pointerDownName, this.handleGestureStart, true);
+            //     } else {
+            //         // Add Touch Listener
+            //         outer.addEventListener('touchstart', this.handleGestureStart, true);
+
+            //         // Add Mouse Listener
+            //         outer.addEventListener('mousedown', this.handleGestureStart, true);
+            //     }
+
+            // };
+
+            // // Handle the start of gestures
+            // this.handleGestureStart = function(evt) {
+            //     evt.preventDefault();
+
+            //     if (evt.touches && evt.touches.length > 1) {
+            //         return;
+            //     }
+
+            //     // Add the move and end listeners
+            //     if (window.PointerEventsSupport) {
+            //         // Pointer events are supported.
+            //         document.addEventListener(pointerMoveName, this.handleGestureMove, true);
+            //         document.addEventListener(pointerUpName, this.handleGestureEnd, true);
+            //     } else {
+            //         // Add Touch Listeners
+            //         document.addEventListener('touchmove', this.handleGestureMove, true);
+            //         document.addEventListener('touchend', this.handleGestureEnd, true);
+            //         document.addEventListener('touchcancel', this.handleGestureEnd, true);
+
+            //         // Add Mouse Listeners
+            //         document.addEventListener('mousemove', this.handleGestureMove, true);
+            //         document.addEventListener('mouseup', this.handleGestureEnd, true);
+            //     }
+
+            //     console.log("start");
+            // }.bind(this);
+
+            // // Handle move gestures
+            // this.handleGestureMove = function(evt) {
+            //     evt.preventDefault();
+
+            //     console.log("moving");
+            // }.bind(this);
+
+
+            // // Handle end gestures
+            // this.handleGestureEnd = function(evt) {
+            //     evt.preventDefault();
+
+            //     if (evt.touches && evt.touches.length > 0) {
+            //         return;
+            //     }
+
+            //     isAnimating = false;
+
+            //     // Remove Event Listeners
+            //     if (window.PointerEventsSupport) {
+            //         // Remove Pointer Event Listeners
+            //         document.removeEventListener(pointerMoveName, this.handleGestureMove, true);
+            //         document.removeEventListener(pointerUpName, this.handleGestureEnd, true);
+            //     } else {
+            //         // Remove Touch Listeners
+            //         document.removeEventListener('touchmove', this.handleGestureMove, true);
+            //         document.removeEventListener('touchend', this.handleGestureEnd, true);
+            //         document.removeEventListener('touchcancel', this.handleGestureEnd, true);
+
+            //         // Remove Mouse Listeners
+            //         document.removeEventListener('mousemove', this.handleGestureMove, true);
+            //         document.removeEventListener('mouseup', this.handleGestureEnd, true);
+            //     }
+
+            //     console.log("end");
+            // }.bind(this);
+
+            this.bindHandler();
+        };
+
+        dragHandler.prototype.bindHandler = function() {
+            var outer = this.outer;
+
+            // Check if pointer events are supported.
+            if (window.PointerEventsSupport) {
+                // Add Pointer Event Listener
+                outer.addEventListener(pointerDownName, this.handleGestureStart, true);
+            } else {
+                // Add Touch Listener
+                outer.addEventListener('touchstart', this.handleGestureStart, true);
+
+                // Add Mouse Listener
+                outer.addEventListener('mousedown', this.handleGestureStart, true);
+            }
+
+        };
+
+        // Handle the start of gestures
+        dragHandler.prototype.handleGestureStart = function(evt) {
+            evt.preventDefault();
+
+            if (evt.touches && evt.touches.length > 1) {
+                return;
+            }
+
+            // Add the move and end listeners
+            if (window.PointerEventsSupport) {
+                // Pointer events are supported.
+                document.addEventListener(pointerMoveName, this.handleGestureMove, true);
+                document.addEventListener(pointerUpName, this.handleGestureEnd, true);
+            } else {
+                // Add Touch Listeners
+                document.addEventListener('touchmove', this.handleGestureMove, true);
+                document.addEventListener('touchend', this.handleGestureEnd, true);
+                document.addEventListener('touchcancel', this.handleGestureEnd, true);
+
+                // Add Mouse Listeners
+                document.addEventListener('mousemove', this.handleGestureMove, true);
+                document.addEventListener('mouseup', this.handleGestureEnd, true);
+            }
+
+            console.log("start");
+        }.bind(dragHandler.prototype);
+
+        // Handle move gestures
+        dragHandler.prototype.handleGestureMove = function(evt) {
+            evt.preventDefault();
+
+            console.log("moving");
+        }.bind(dragHandler.prototype);
+
+
+        // Handle end gestures
+        dragHandler.prototype.handleGestureEnd = function(evt) {
+            evt.preventDefault();
+
+            if (evt.touches && evt.touches.length > 0) {
+                return;
+            }
+
+            isAnimating = false;
+
+            // Remove Event Listeners
+            if (window.PointerEventsSupport) {
+                // Remove Pointer Event Listeners
+                document.removeEventListener(pointerMoveName, this.handleGestureMove, true);
+                document.removeEventListener(pointerUpName, this.handleGestureEnd, true);
+            } else {
+                // Remove Touch Listeners
+                document.removeEventListener('touchmove', this.handleGestureMove, true);
+                document.removeEventListener('touchend', this.handleGestureEnd, true);
+                document.removeEventListener('touchcancel', this.handleGestureEnd, true);
+
+                // Remove Mouse Listeners
+                document.removeEventListener('mousemove', this.handleGestureMove, true);
+                document.removeEventListener('mouseup', this.handleGestureEnd, true);
+            }
+
+            console.log("end");
+        }.bind(dragHandler.prototype);
+
+        return dragHandler;
+    }();
+
+
+
+    app.directive('test1', function() {
+        return {
+            scope: {},
+            replace: true,
+            template: "<div class='panel-item'></div>",
+            link: function(scope, ele, attr, ctrl) {
+                var _handler = new dragHandler({
+                    outer: ele[0]
+                });
+
+            }
+        };
+    });
+    </script>
+</body>
+
+</html>
