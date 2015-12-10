@@ -63,7 +63,7 @@
 
 <body ng-controller="demoCtrl">
     <div>
-        <div class="sptable spgrid" nd-sptable sp-arr="data" sp-row="dataRowCount" row-field="row" col-field="col" scale-field="scale" isdel-field="isDel" width-unit="sc" width-px="500" is-log="{{isLog}}" on-validate="validateRow(items)">
+        <div class="sptable spgrid" nd-sptable sp-arr="data" sp-row="dataRowCount" row-field="row" col-field="col" scale-field="scale" isdel-field="isDel" width-unit="sc" width-px="500" is-log="{{isLog}}" on-validate="validateRow(items)" on-refresh="refreshTable()">
             <div class="spitem" nd-spitem ng-repeat="d in data" sp-item="d" scale-field="scale" isdel-field="isDel" ng-show="!d.isDel">
                 <div>
                     <div>id:{{d.id}}</div>
@@ -169,6 +169,11 @@
             }
             return true;
         }
+
+        //刷新表格
+        $scope.refreshTable = function() {
+            console.log("Table refresh");
+        };
 
         function getIndex(rowIndex) {
             for (var i = 0, en; en = $scope.data[i++];) {

@@ -3,6 +3,71 @@
  */
 angular.module("ui.nd", ["nd.wall", "nd.sptable", "nd.rollback"]);
 
+﻿angular.module('nd.rollback', [])
+
+.directive('ndModelCommit', ["$parse", function($parse) {
+    return {
+        restrict: 'A',
+        link: function(scope, el, attrs) {
+            el.bind("click", function() {
+                //回调动作
+                var goAction = angular.isDefined(attrs.action) ? $parse(attrs.action) : angular.noop;
+                //验证动作
+                var validationAction = angular.isDefined(attrs.validation) ? $parse(attrs.validation) : angular.noop;
+                //是否提交
+                var isCommit = angular.isDefined(attrs.commit) && attrs.commit === "true" ? true : false;
+
+                //通知回滚
+                scope.$emit("ngModelActionRollback" + attrs.ndModelCommit, isCommit, validationAction);
+
+                //提交成功回调
+                goAction(scope);
+
+                scope.$apply();
+            });
+        }
+    };
+}])
+
+.directive('ndModelRollback', function() {
+    return {
+        restrict: 'A',
+        scope: false,
+        require: "?ngModel",
+        priority: 20,
+        link: function(scope, el, attrs, ngModel) {
+            var pViewVaulue = null;
+
+            scope.$on("ngModelActionRollback" + attrs.ndModelRollback, function(event, isEnter, validationAction) {
+                if (isEnter) {
+                    isEnter = validationAction(scope, {
+                        vm: ngModel.$viewValue
+                    });
+                    isEnter = isEnter === undefined ? true : isEnter;
+                }
+
+                if (isEnter) {
+                    ngModel.$commitViewValue();
+                    ngModel.$render();
+                    scope.$apply();
+                } else {
+                    ngModel.$rollbackViewValue();
+                    ngModel.$render();
+                }
+            });
+
+            el.bind('blur', function(e) {
+                pViewVaulue = ngModel.$viewValue;
+
+                ngModel.$rollbackViewValue();
+
+                ngModel.$setViewValue(pViewVaulue);
+                ngModel.$render();
+            });
+        }
+    };
+});
+
 ﻿angular.module('nd.sptable', ['ngAnimate'])
 
 .directive('ndSptable', function() {
@@ -33,10 +98,13 @@ angular.module("ui.nd", ["nd.wall", "nd.sptable", "nd.rollback"]);
         //获取行验证执行方法
         var validateRowInvoke = angular.isDefined($attrs.onValidate) ? $parse($attrs.onValidate) : angular.noop;
 
+        //获取刷新表格回调方法
+        var refreshTableInvoke = angular.isDefined($attrs.onRefresh) ? $parse($attrs.onRefresh) : angular.noop;
+
         // var curCount = 0;
         $scope.spRow = 0;
         //目前最多支持10行
-        for (var irow = 1; irow <= 10; irow++) {
+        for (var irow = 1; irow <= 30; irow++) {
 
             //获取当前行所有item集合
             var itemsInRowAll = arr.filter($attrs.rowField, irow);
@@ -89,6 +157,9 @@ angular.module("ui.nd", ["nd.wall", "nd.sptable", "nd.rollback"]);
             //汇报日志
             refreshDataLog(arr);
         }
+
+        //刷新回调
+        refreshTableInvoke($scope.$parent, null);
     };
 
     //监听item集合变化
@@ -385,71 +456,6 @@ ut.factory('$$util', function() {
     }
 
     return service;
-});
-
-﻿angular.module('nd.rollback', [])
-
-.directive('ndModelCommit', ["$parse", function($parse) {
-    return {
-        restrict: 'A',
-        link: function(scope, el, attrs) {
-            el.bind("click", function() {
-                //回调动作
-                var goAction = angular.isDefined(attrs.action) ? $parse(attrs.action) : angular.noop;
-                //验证动作
-                var validationAction = angular.isDefined(attrs.validation) ? $parse(attrs.validation) : angular.noop;
-                //是否提交
-                var isCommit = angular.isDefined(attrs.commit) && attrs.commit === "true" ? true : false;
-
-                //通知回滚
-                scope.$emit("ngModelActionRollback" + attrs.ndModelCommit, isCommit, validationAction);
-
-                //提交成功回调
-                goAction(scope);
-
-                scope.$apply();
-            });
-        }
-    };
-}])
-
-.directive('ndModelRollback', function() {
-    return {
-        restrict: 'A',
-        scope: false,
-        require: "?ngModel",
-        priority: 20,
-        link: function(scope, el, attrs, ngModel) {
-            var pViewVaulue = null;
-
-            scope.$on("ngModelActionRollback" + attrs.ndModelRollback, function(event, isEnter, validationAction) {
-                if (isEnter) {
-                    isEnter = validationAction(scope, {
-                        vm: ngModel.$viewValue
-                    });
-                    isEnter = isEnter === undefined ? true : isEnter;
-                }
-
-                if (isEnter) {
-                    ngModel.$commitViewValue();
-                    ngModel.$render();
-                    scope.$apply();
-                } else {
-                    ngModel.$rollbackViewValue();
-                    ngModel.$render();
-                }
-            });
-
-            el.bind('blur', function(e) {
-                pViewVaulue = ngModel.$viewValue;
-
-                ngModel.$rollbackViewValue();
-
-                ngModel.$setViewValue(pViewVaulue);
-                ngModel.$render();
-            });
-        }
-    };
 });
 
 ﻿angular.module('nd.wall', ['ngAnimate'])

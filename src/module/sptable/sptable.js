@@ -28,10 +28,13 @@ angular.module('nd.sptable', ['ngAnimate'])
         //获取行验证执行方法
         var validateRowInvoke = angular.isDefined($attrs.onValidate) ? $parse($attrs.onValidate) : angular.noop;
 
+        //获取刷新表格回调方法
+        var refreshTableInvoke = angular.isDefined($attrs.onRefresh) ? $parse($attrs.onRefresh) : angular.noop;
+
         // var curCount = 0;
         $scope.spRow = 0;
         //目前最多支持10行
-        for (var irow = 1; irow <= 10; irow++) {
+        for (var irow = 1; irow <= 30; irow++) {
 
             //获取当前行所有item集合
             var itemsInRowAll = arr.filter($attrs.rowField, irow);
@@ -84,6 +87,9 @@ angular.module('nd.sptable', ['ngAnimate'])
             //汇报日志
             refreshDataLog(arr);
         }
+
+        //刷新回调
+        refreshTableInvoke($scope.$parent, null);
     };
 
     //监听item集合变化
