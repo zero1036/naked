@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+    <title></title>
+    <script src="../../src/lib/angular.js"></script>
+    <script src="../../src/lib/angular-animate.js"></script>
+    <style type="text/css">
+    body {
+        font-family: 'Open Sans', sans-serif;
+        font-weight: 400;
+        background: #ecf0f1;
+    }
+    
+    .drag-panel {
+        border: 1px solid red;
+        width: 200px;
+        height: 200px;
+        text-align: center;
+        line-height: 100px;
+        margin-top: 20px;
+    }
+    
+    .drag-item {
+        border: 1px solid red;
+        width: 100px;
+        height: 100px;
+        text-align: center;
+        line-height: 100px;
+    }
+    </style>
+</head>
+
+<body ng-controller="demoCtrl">
+    <div class="swipe-element">
+        <div nd-drag class="drag-item" draggable="true" id="dragEle">
+            <p>
+                nihao
+            </p>
+        </div>
+        <div class="drag-panel" id="dropEle"></div>
+    </div>
+    <script>
+    var app = angular.module('myApp', [])
+
+    app.controller('demoCtrl', ['$scope', function($scope) {
+        $scope.name = "tg";
+    }]);
+
+
+    app.directive('ndDrag', function() {
+        return {
+            scope: {},
+            replace: false,
+            link: function(scope, ele, attr, ctrl) {
+                var dragEle = ele[0];
+                var dropEle = document.getElementById("dropEle");
+
+                dragEle.ondragstart = function(event) {
+                    console.log("dragStart");
+                    // this.style.border = "1px solid blue";
+                    // angular.element(this).addClass('style')
+                    // 
+                   this.innerHTML="<p>draping</p>";
+                  
+                    // var ele = angular.element(this);
+                    // ele.append('<p>draping</p>')
+
+                    // event.dataTransfer.setData("Text", event.target.id);
+                };
+
+                /**
+                 * 当放置被拖数据时，会发生 drop 事件。
+                 * 调用 preventDefault() 来避免浏览器对数据的默认处理（drop 事件的默认行为是以链接形式打开）
+                 * @param event
+                 */
+                dropEle.ondrop = function(event) {
+                    /*   for (var p in event.dataTransfer)
+                {
+                    console.log(p + " = " + event.dataTransfer[p] + " @@");
+                }
+            */
+                    console.log("onDrop");
+                    // var id = event.dataTransfer.getData("Text");
+                    // $(this).append($("#" + id).clone().text($(this).find("div").length));
+                    // 
+                    // this.innerHTML = document.getElementById(id);
+                    event.preventDefault();
+                };
+
+                /**
+                 * ondragover 事件规定在何处放置被拖动的数据。
+                 *默认地，无法将数据/元素放置到其他元素中。如果需要设置允许放置，我们必须阻止对元素的默认处理方式。
+                 */
+                dropEle.ondragover = function(event) {
+                    console.log("onDrop over");
+                    event.preventDefault();
+                }
+
+                dropEle.ondragenter = function(event) {
+                    console.log("onDrop enter");
+                }
+
+                dropEle.ondragleave = function(event) {
+                    console.log("onDrop leave");
+                }
+
+                dropEle.ondragend = function(event) {
+                    console.log("onDrop end");
+                }
+            }
+        };
+    });
+    </script>
+</body>
+
+</html>

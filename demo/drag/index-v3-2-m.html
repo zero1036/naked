@@ -7,7 +7,6 @@
     <title></title>
     <script src="../../src/lib/angular.js"></script>
     <script src="../../src/lib/angular-animate.js"></script>
-    <script src="../../src/module/panel/panel.js"></script>
     <style type="text/css">
     body {
         font-family: 'Open Sans', sans-serif;
@@ -30,7 +29,7 @@
         <div test1></div>
     </div>
     <script>
-    var app = angular.module('myApp', ['nd.panel'])
+    var app = angular.module('myApp', []);
 
     app.controller('demoCtrl', ['$scope', function($scope) {
         $scope.name = "";
@@ -215,7 +214,19 @@
                         window.requestAnimFrame(onAnimFrame);
                     },
                     _endHandler: function(evt) {
+                        isAnimating = false;
 
+
+
+                        window.requestAnimFrame(function() {
+                            swipeFrontElement.style.webkitTransition = 'all .3s ease';
+                            var transformStyle = 'translate(0px,0px)';
+
+                            swipeFrontElement.style['-webkit-transform'] = transformStyle;
+                            swipeFrontElement.style['-moz-transform'] = transformStyle;
+                            swipeFrontElement.style.transform = transformStyle;
+
+                        });
                     }
 
                 });

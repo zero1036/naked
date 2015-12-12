@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+    <title></title>
+    <script src="../../src/lib/angular.js"></script>
+    <script src="../../src/lib/angular-animate.js"></script>
+    <style type="text/css">
+    body {
+        font-family: 'Open Sans', sans-serif;
+        font-weight: 400;
+        background: #ecf0f1;
+    }
+    
+    .panel-item {
+        height: 200px;
+        width: 200px;
+        background-color: #ffffff;
+        /*border: 1px solid red;*/
+    }
+    </style>
+</head>
+
+<body ng-controller="demoCtrl">
+    <div class="swipe-element">
+        <!-- <div class="panel-item" ng-mousedown="count = count + 1" ng-init="count=0"></div> -->
+        <div class="panel-item" ng-mousedown="mu()"></div>
+        {{count}}
+    </div>
+    <script>
+    var app = angular.module('myApp', []);
+
+    app.controller('demoCtrl', ['$scope', function($scope) {
+        $scope.name = "";
+
+        // $scope.mu = function() {
+        //     ele[0].style.border = "1px solid blue";
+        // };
+    }]);
+
+    app.directive('test1', function() {
+        return {
+            link: function(scope, ele, attr, ctrl) {
+                scope.mu = function() {
+                    ele[0].style.border = "1px solid blue";
+                };
+            }
+        };
+
+    });
+    </script>
+</body>
+
+</html>
