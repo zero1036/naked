@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+    <title></title>
+    <script src="../../src/lib/angular.js"></script>
+    <script src="../../src/lib/angular-animate.js"></script>
+    <script src="../../src/module/drag/drag.js"></script>
+    <style type="text/css">
+    body {
+        font-family: 'Open Sans', sans-serif;
+        font-weight: 400;
+        background: #ecf0f1;
+    }
+    
+    .drag-item {
+        height: 200px;
+        width: 200px;
+        background-color: red;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="swipe-element">
+        <div nd-drag class='drag-item'></div>
+        <div nd-drag class='drag-item'></div>
+    </div>
+    <script>
+    var app = angular.module('myApp', ['nd.drag'])
+
+    app.controller('demoCtrl', ['$scope', function($scope) {
+        $scope.name = "";
+    }]);
+
+   
+    </script>
+</body>
+
+</html>
